@@ -1,44 +1,62 @@
 
 class Hangman
   def initialize
-    @hangmanWords = []
-    @rand = 0
-    @selectedWord = ""
+    @hangman_words = []
+    @selected_word = ""
+    @player_guess = ""
+    @correct_letters = []
+    @wrong_letters = []
     @turn = 0
-    @guess = ""
   end
 
   def read_file
     lines = File.readlines "5desk.txt"
     lines.each do |word|
-      word = word.chomp
-      @hangmanWords.push(word) if word.length >= 5 && word.length <= 12
+      word = word.chomp.downcase
+      @hangman_words.push(word) if word.length >= 5 && word.length <= 12
     end
   end
 
   def select_word
-    @selectedWord = @hangmanWords[rand(@hangmanWords.length)]
-    @selectedWord.split('')
-  end
-
-  def guess
-    print "Enter your guess: "
-    @guess = gets.chomp
-  end
-
-  def compare
-    @selectedWord.each_with_index do |letter,index|
-      matches.push(index) if @guess == x
+    @selected_word = @hangman_words[rand(@hangman_words.length)]
+    @selected_word.split('')
+    @selected_word.length.times do |i|
+      @correct_letters[i] = "_"
     end
   end
 
+  def draw_board
+    puts "Correct: #{@correct_letters}"
+    puts "Wrong: #{@wrong_letters}"
+    puts "Turn: #{@turn}/20"
+  end
+
+  def guess
+    print "\nEnter your guess: "
+    @player_guess = gets.chomp.downcase.chr
+  end
+
+  def compare
+    matched = FALSE
+    @selected_word.length.times do |i|
+      if @player_guess == @selected_word[i]
+        @correct_letters[i] = @player_guess
+        matched = TRUE
+      end
+    end
+    @wrong_letters.push(@player_guess) unless matched == TRUE || @wrong_letters.include?(@player_guess)
+  end
+
   def play
-    read_file
-    select_word
+    read_file #reads in 5desk.txt
+    select_word #selects a word from 5desk.txt
+    puts @selected_word
     until @gameover == TRUE || @turn == 20
       @turn += 1
-      guess
-      compare
+      guess #fills player_guess
+      compare #fills correct_letters and wrong_letters
+      draw_board #prints correct_letters and wrong_letters
+    end
   end
 end
 
