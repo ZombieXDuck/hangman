@@ -19,7 +19,6 @@ class Hangman
 
   def select_word
     @selected_word = @hangman_words[rand(@hangman_words.length)]
-    @selected_word.split('')
     @selected_word.length.times do |i|
       @correct_letters[i] = "_"
     end
@@ -47,6 +46,14 @@ class Hangman
     @wrong_letters.push(@player_guess) unless matched == TRUE || @wrong_letters.include?(@player_guess)
   end
 
+  def check_win
+    correct_word = @correct_letters.join("")
+    if @selected_word == correct_word
+      puts "You correctly guessed the word!"
+      @gameover = TRUE
+    end
+  end
+
   def play
     read_file #reads in 5desk.txt
     select_word #selects a word from 5desk.txt
@@ -56,7 +63,9 @@ class Hangman
       guess #fills player_guess
       compare #fills correct_letters and wrong_letters
       draw_board #prints correct_letters and wrong_letters
+      check_win #checks to see if the word is guessed correctly
     end
+    puts "You did not guess the word" if @turn == 20
   end
 end
 
