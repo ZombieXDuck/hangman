@@ -1,4 +1,3 @@
-
 class Hangman
   def initialize
     @hangman_words = []
@@ -6,7 +5,7 @@ class Hangman
     @player_guess = ""
     @correct_letters = []
     @wrong_letters = []
-    @turn = 0
+    @turn = 1
   end
 
   def read_file
@@ -31,8 +30,9 @@ class Hangman
   end
 
   def guess
-    print "\nEnter your guess: "
+    print "\nEnter your guess('1' to save & exit): "
     @player_guess = gets.chomp.downcase.chr
+    save_game if @player_guess == "1"
   end
 
   def compare
@@ -50,24 +50,55 @@ class Hangman
     correct_word = @correct_letters.join("")
     if @selected_word == correct_word
       puts "You correctly guessed the word!"
+      draw_board
       @gameover = TRUE
     end
   end
 
-  def play
+  def save_game
+    puts("Saving Game...")
+    File.open("save_file", "w").puts Marshal.dump(self)
+    exit(0)
+  end
+
+  def load_game
+    loaded_game = Marshal.load(File.open("save_file", "r"))
+    loaded_game.play
+  end
+
+  def file_select
+    puts("(N)ew game or (L)oad game: ")
+    input = gets.chomp.downcase()
+    if input == "l"
+      puts("Loading game...")
+      load_game
+    elsif input == "n"
+      puts("Starting a new game...")
+      play
+    else
+      puts "Incorrect Input, try again"
+      file_select
+    end
+  end
+
+  def start
     read_file #reads in 5desk.txt
     select_word #selects a word from 5desk.txt
+    file_select #Load a game or start a new one
+  end
+
+  def play
     puts @selected_word
     until @gameover == TRUE || @turn == 20
-      @turn += 1
+      draw_board #prints correct_letters and wrong_letters
       guess #fills player_guess
       compare #fills correct_letters and wrong_letters
-      draw_board #prints correct_letters and wrong_letters
       check_win #checks to see if the word is guessed correctly
+      @turn += 1
     end
     puts "You did not guess the word" if @turn == 20
   end
 end
 
 newGame = Hangman.new
-newGame.play
+newGame.start
